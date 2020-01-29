@@ -2,20 +2,13 @@
 Methods for binary matrix completion
 
 Algorithms
--TBMC and comparison (NMF, equalized)
--Graph Regularised
+-TBMC 
+-NMF
+-Neighbours
+-Nuclear Norm
+-Iterative thresholding
+-ADMM Graph regularisation ('features')
 -Theoretical (slow)
 
 
-
-Write up
--MP2 (see project for full code)
--Transfer
--Background Reading
--Chernoff Bounds
--lp/ip comparisons
--coherence
--meeting notes/ project planning
-
-Posters and Presentations
 
