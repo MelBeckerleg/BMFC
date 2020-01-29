@@ -120,6 +120,7 @@ if not(isempty(m_test)), mask_test = prob_params.mask_test; end;
 gamma_n = prob_params.gamma_n;  % nuclear norm
 gamma_r = prob_params.gamma_r;  % rows graph
 gamma_c = prob_params.gamma_c;  % columns graph
+ %do we need to halve the stepsize ? 
 
 size_X = prob_params.size_X;    % needed to go from m_train to M_train
 numel_X = prod(size_X);               % numel(X)
@@ -132,6 +133,7 @@ maxit = solver_params.maxit;
 y_lims_init = solver_params.y_lims_init;
 y_lims_scaled = solver_params.y_lims_scaled;
 rho_ADMM = solver_params.rho_ADMM;
+update_gamma=solver_params.update_gamma;
 
 % for prox of nuclear norm
 param_nuclear.svds = solver_params.svds;         % TODO: this should be input
@@ -198,7 +200,9 @@ end
 
 %% ADMM:
 for i = 1 : maxit
-    gamma_c=gamma_c/2;gamma_r=gamma_r/2;
+    if update_gamma
+        gamma_c=gamma_c/2;gamma_r=gamma_r/2;
+    end
   %  fprintf('iter %d:  ', i);
      %if i>1 %change this to detect the increase!
          %C_op=C_oppt2;

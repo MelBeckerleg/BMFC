@@ -3,7 +3,7 @@
 %
 %
 % see also: (/source/features/utils) MC_solve_ADMM, MC_demo_grid_search, split_observed,
-%           sample_sparse, sample_sparse_t, sample_sparse_AtA, 
+% %           sample_sparse, sample_sparse_t, sample_sparse_AtA, 
 %            (/utils) vec
 %
 %
@@ -23,6 +23,7 @@ addpath([homepath 'BMFC/Rank_k_MATLAB/source/solvers/ADMM/utils/'])
 addpath([homepath 'BMFC/Rank_k_MATLAB/source/solvers/ADMM/'])
 addpath([homepath 'BMFC/Rank_k_MATLAB/source/error/'])
 f=figure;g=figure;h1=figure;h2=figure;all_legend=figure;legend1_val=1;legend2_val=1;legend3_val=1;legend4_val=1;legend5_val=1;
+
 for prot_fts={'cathids','none'}%,'funfams','sequences','none'}
     for cmp_fts={'fingerprints','none'}%'fingerprints'
         set_up=1;
@@ -30,23 +31,30 @@ for prot_fts={'cathids','none'}%,'funfams','sequences','none'}
         if set_up 
             load([homepath 'MP2/Data/read_ch/mats/ch_dense_set'],'supported_ch','ch_fingerprints','ch_protein_funfams','ch_protein_sigs'); 
             load([homepath 'MP2/Data/read_ch/mats/ch_protein_cathids.txt'])
+            [M,N]=size(supported_ch);
+            if 1
+                m_idx=randi(M,[m,1]);n_idx=randi(N,[n,1]);
+            else
+                m_idx=[1:m];n_idx=[1:n];
+            end
+            
             %Gu=squareform(pdist(ch_protein_funfams(:,[1:3000])'));
             if strcmp(prot_fts,'cathids')
-                Gm=ch_protein_cathids([1:n],:)*ch_protein_cathids([1:n],:)';
+                Gm=ch_protein_cathids(n_idx,:)*ch_protein_cathids(n_idx,:)';
                 Gm(find(sum(Gm)==0),find(sum(Gm)==0))=1;
             elseif strcmp(prot_fts,'funfams')
-                Gm=ch_protein_funfams([1:n],:)*ch_protein_funfams([1:n],:)';
+                Gm=ch_protein_funfams(n_idx,:)*ch_protein_funfams(n_idx,:)';
                 Gm(find(sum(Gm)==0),find(sum(Gm)==0))=1;
             elseif strcmp(prot_fts,'sequences')
                 %this is default; 'none' weights to zero later
-                Gm=ch_protein_sigs([1:n],:)*ch_protein_sigs([1:n],:)';
+                Gm=ch_protein_sigs(n_idx,:)*ch_protein_sigs(n_idx,:)';
                 Gm(find(sum(Gm)==0),find(sum(Gm)==0))=1;
             end 
                 Gm=Gm./max(Gm);
 
             if strcmp(cmp_fts,'fingerprints')
                 %Gu=squareform(pdist(ch_fingerprints([1:m],:)));
-                Gu=ch_fingerprints([1:m],:)*ch_fingerprints([1:m],:)';
+                Gu=ch_fingerprints(m_idx,:)*ch_fingerprints(m_idx,:)';
                 Gu(find(sum(Gu)==0),find(sum(Gu)==0))=1;
                 Gu=Gu./max(Gu);
             else
@@ -54,7 +62,7 @@ for prot_fts={'cathids','none'}%,'funfams','sequences','none'}
                 Gu=diag(ones(m,1));
             end
 
-            Xn=supported_ch([1:m],[1:n]);
+            Xn=supported_ch(m_idx,n_idx);
             %%%%%%%%%%%%%%%!!!!!!!!!!!!!!TODO: assign other attributes to struct
             %laplacin= D-A
             Gr=struct;Gr.L=diag(sum(Gu))-Gu;Gr.lmax=max(vec(Gu));
@@ -215,7 +223,7 @@ for prot_fts={'cathids','none'}%,'funfams','sequences','none'}
         fn=[impath sprintf('regularisation_cmp%s_prot%s_small_auc.eps',string(cmp_fts),string(prot_fts))]
         saveas(gcf,fn,'epsc')
         
-                figure(h2);
+        figure(h2);
         plot(stat_MC_low_rank.aucpr_val);
         hold on
         plot(stat_MC_graphs.aucpr_val,'d');
