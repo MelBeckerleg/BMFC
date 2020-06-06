@@ -1,0 +1,9 @@
+Code for generating binary factorisations of matrices with missing entires. In particular, benchmarking of TBMC algorithm [1] against alternatives [2,3]
+
+Requires: Python 2.7, cylp solver, nmf for missing data
+
+
+# add to path
+# PYTHONPATH=$PYTHONPATH:/home/user/Documents/Mel/Ethera/BMFC/Rank_k_PYTHON_mwe/src:/home/user/Documents/Mel/Ethera/BMFC/Rank_k_PYTHON_mwe/src/solvers/:/home/user/Documents/Mel/Ethera/BMFC/Rank_k_PYTHON_mwe/src/options/
+
+
