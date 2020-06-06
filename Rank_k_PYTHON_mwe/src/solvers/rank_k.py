@@ -103,6 +103,8 @@ def save_function(x1, Msub, xsub, ysub, Xfinal, Yfinal, X, Y):
 
 
 def TBMC(opts,A):
+#implementation of the algorithm outlined in 
+#Beckerleg, M. and Thompson, A., 2020. A divide-and-conquer algorithm for binary matrix completion. Linear Algebra and its Applications.
     try:
         np.random.seed(opts.rand_seed_solve) #
     except(AttributeError):
@@ -162,6 +164,7 @@ def binarise(W,H):
     return W,H
 
 def NMF_rank_k(gopts,N):
+#BMF using NMF, as in Zhang, Z., Li, T., Ding, C. and Zhang, X., 2007, October. Binary matrix factorization with applications. In Seventh IEEE International Conference on Data Mining (ICDM 2007) (pp. 391-400). IEEE.
     import sklearn.decomposition.nmf_missing as nmf
     M=copy.deepcopy(N)
     M[M==0]=np.nan
@@ -232,6 +235,8 @@ def approx_cluster(A,r,thresh):
     return clusters
 
 def spectral_method(gopts,M):
+    #implementation of method outlined in
+    #Xu, J., Wu, R., Zhu, K., Hajek, B., Srikant, R. and Ying, L., 2014, June. Jointly clustering rows and columns of binary matrices: Algorithms and trade-offs. In The 2014 ACM international conference on Measurement and modeling of computer systems (pp. 29-41).
     m,n=np.shape(M)
     k=gopts.rank_k_opts['kmax']
     #erasure probability
@@ -271,6 +276,8 @@ def spectral_method(gopts,M):
 
 
 def convex_method(gopts,M):
+    #implementation of method outlined in
+    #Xu, J., Wu, R., Zhu, K., Hajek, B., Srikant, R. and Ying, L., 2014, June. Jointly clustering rows and columns of binary matrices: Algorithms and trade-offs. In The 2014 ACM international conference on Measurement and modeling of computer systems (pp. 29-41).
     k=gopts.rank_k_opts['kmax']
     m,n=np.shape(M)
 
