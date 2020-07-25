@@ -1,0 +1,79 @@
+function [X,Y]=Recover(W_omega,opts)
+k=opts.k;recovered=opts.recovered;binarised=opts.binarised;
+recovery_solver=opts.recovery_solver;%'convex';
+[m,n]=size(W_omega);
+
+%set default methods for cluster recovery
+
+recover_rows_function = @nearest_group;
+recover_footprints_function = @majority_vote;
+
+
+B=abs(W_omega); %B=mask
+A=(W_omega+1)/2;
+exact_rho=sum(sum(B))/m/n;
+
+
+if strcmp(recovery_solver,'convex')
+    [CompletedMat, ~] = MatrixCompletion(A.*B, B,100, 'nuclear', 10, 1e-8, 0);
+    X_method = @nearest_group();
+else
+    if strcmp(recovery_solver,'CGIHT')
+    reltol = 1e-3; 
+    maxiter = 100; 
+    rate_limit = 1-reltol; 
+    relres = reltol*norm(data); 
+    itres = zeros(maxiter,1);
+    [CompletedMat, ~] = Modified_CGIHT_Matrix(m,n,r,B,W_omega,start,opts);
+    
+    else
+        if strcmp(recovery_solver, '1bitMC')
+            opts.epsilon = 0.2; %Ideally you want to work out if you're passing 
+                                %this as a parameter or not
+            CompletedMat = OneBitMC(m,n,r,B,W_omega,opts);
+            %set the threshold according to the definition in chapter 5,
+            c_rho = n^{1/24}*exact_rho;
+            c_k = n^{1/12}*k;
+            opts.thresh = sqrt(32*sqrt(2)*sqrt(c_k/c_rho)*(1+1/(4*(1/2-opts.epsilon)^2) ...
+                                       *(1/2-opts.epsilon)*(1+(1/2-opts.epsilon)^2/1/4-(1/2-opts.epsilon)^2) ...
+                                       *8*sqrt(2)*(1-sqrt(6))/exp(1) ...
+                                       *sqrt(1+(m+n)*log(m)/(exact_rho*m*n)) ...
+                                       *n^{3/4-1/6+1/12}); %take sqrt(T_epsilon) since pdist calculates 
+            recover_rows_function = @threshold_group;
+            recover_footprints_function = @majority_vote;
+        
+        else
+            if strcmp(recovery_solver,'RPCA')
+                %Uses  RPCA inexact ALM method by Chen 2009
+                % [A_hat E_hat iter] = inexact_alm_rpca(D, lambda, tol, maxIter)
+                % we choose lambda as in wright to be 1/sqrt(m);
+                lambda = sqrt(m);
+                [CompletedMat, ~, ~] = inexact_alm_rpca(A.*B, lambda,1e-8,100);
+            else
+                disp('method not recognised, returning observed matrix')
+                CompletedMat = A.*B;
+            end
+        end
+    end
+end    
+
+
+if binarised
+    CompletedMat=(CompletedMat>0.5)*1;
+end
+%Find X
+
+%Find Y
+
+if recovered
+    mat=CompletedMat;
+else
+    mat=A.*B;    
+end
+
+
+X = recover_rows_function(A,opts);
+Y = recover_footprints_function(A,X,opts);
+    
+end
+    

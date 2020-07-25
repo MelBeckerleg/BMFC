@@ -1,9 +1,10 @@
 %fn_home_im='/home/user/Documents/Mel/Ethera/FirstYear/Images/';fn_home='/home/user/Documents/Mel/Ethera/BMFC/Rank_k_MATLAB/Results/';
 %fn_home_im='/home/beckerleg/Ethera/FirstYear/Images/';fn_home='/home/beckerleg/Ethera/FirstYear/Clusters/SecondYear/PhaseWork/';
+addpath(genpath('/home/beckerleg/mosek/9.2/toolbox/'));
 fn_home_im='/home/beckerleg/Ethera/FirstYear/Images/';fn_home='/home/beckerleg/Ethera/Results/phase_work';
 tag='thesis'
 bin_thresh=0.05; %Ideally this would be 0
-num_trials=30;
+num_trials=50;
 step_val=0.05;tau_vals=step_val:step_val:1;tv=length(tau_vals);
 rho_vals=0:0.1:1;rv=length(rho_vals);
 
@@ -93,7 +94,7 @@ end
 
 
  %% Plots on my computer
-if 1
+if 0
     m=100;
     
     %confirmation 

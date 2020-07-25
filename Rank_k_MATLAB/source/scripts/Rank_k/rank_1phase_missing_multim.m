@@ -1,13 +1,15 @@
 %fn_home_im='/home/user/Documents/Mel/Ethera/FirstYear/Images/';fn_home='/home/user/Documents/Mel/Ethera/BMFC/Rank_k_MATLAB/Results/';
 %fn_home_im='/home/beckerleg/Ethera/FirstYear/Images/';fn_home='/home/beckerleg/Ethera/FirstYear/Clusters/SecondYear/PhaseWork/';
+addpath(genpath('/home/beckerleg/mosek/9.2/toolbox/'));
 fn_home_im='/home/beckerleg/Ethera/FirstYear/Images/';fn_home='/home/beckerleg/Ethera/Results/phase_work';
 tag='thesis'
 bin_thresh=0.05; %Ideally this would be 0
-num_trials=30;
+num_trials=50;
 step_val=0.05;tau_vals=step_val:step_val:1;tv=length(tau_vals);
 rho_vals=0:0.1:1;rv=length(rho_vals);
 
-parfor m=[300, 400, 500]
+%parfor m_idx=[3,4,5]
+m=300;n=m;
 for epsilon=[0.2,0.25,0.3]  
     objective=zeros(tv,tv,rv);error=zeros(tv,tv,rv);error_bin=zeros(tv,tv,rv);error_bin_thresh=zeros(tv,tv,rv);
     l=1;
@@ -23,9 +25,22 @@ for epsilon=[0.2,0.25,0.3]
 
                     W = 2*X-1;
                     W_omega=( W-(1-2*X).*(rand(m,n)<rho));
-
-
+                    
+                    
                     numzs=length(find(W_omega(:)<0));
+                    
+                    optimal=[zeros(numzs,1);x_true;y_true];
+                    %need to set z=1 wherever (5*x_true*y_true'-W_omega)==6; 
+                    %and identify the index of z this corresponds to 
+                    fi=[find((5*x_true*y_true'-W_omega)==6)];
+                    for flipped_idx=1:length(fi)
+                        flipped=fi(flipped_idx);
+                        optimal(find(find(W_omega<0)==flipped))=1;
+                    end
+
+
+
+                    
                    
                     c = sparse(-[-ones(numzs,1); 1/2*sum((W_omega')>0)'; 1/2*sum((W_omega)>0)']);
                     %%%this is not the most memory efficient thing to do, but since we need to go up to rho=1 it'll do...
@@ -42,11 +57,11 @@ for epsilon=[0.2,0.25,0.3]
                     b = [sparse(ones(numzs,1))];
                     
                     % Get default options for mosek
-                    opt = mskoptimset('');
+                    opt = mskoptimset('')
                     % using simplex to ensure a vertex solution
-                    opt = mskoptimset(opt, 'MSK_IPAR_OPTIMIZER','MSK_OPTIMIZER_FREE_SIMPLEX')
+                    opt = mskoptimset(opt, 'MSK_IPAR_OPTIMIZER','MSK_OPTIMIZER_FREE_SIMPLEX');
                     % using simplex to ensure a vertex solution
-                    opt = mskoptimset(opt, 'DISPLAY','OFF')
+                    opt = mskoptimset(opt, 'DISPLAY','OFF');
                    
                     % Set a MOSEK option, in this case turn basic identification off.
                     opt = mskoptimset(opt,'MSK_IPAR_INTPNT_BASIS','MSK_OFF');
@@ -64,8 +79,8 @@ for epsilon=[0.2,0.25,0.3]
                     error_bin(i,j,l)=error_bin(i,j,l)+1-(((norm(u-x_true)+norm(v-y_true)))>0)*1.;
                     error_bin_thresh(i,j,l)=error_bin_thresh(i,j,l)+1-(((norm(u-x_true)^2+norm(v-y_true)^2)/(m+n))>bin_thresh)*1.;
                     error(i,j,l)=error(i,j,l)+(sum(abs(u-x_true))+sum(abs(v-y_true)))/(n+m);
-                    c'*(out-opt);
-                    objective(i,j,l)=objective(i,j,l)+c'*(out-opt);
+                    c'*(out-optimal);
+                    objective(i,j,l)=objective(i,j,l)+c'*(out-optimal);
                     fn=sprintf('%serror_epsilon%s%s%s',fn_home,string(100*epsilon),string(m),tag);
                     save(fn,'error')
                     fn=sprintf('%serrorbin_epsilon%s%s%s',fn_home,string(100*epsilon),string(m),tag);
@@ -86,14 +101,14 @@ for epsilon=[0.2,0.25,0.3]
 	end
 
 end
-end
+%end
 %%%%%%%%%%%%Plots
 
 
 
 
  %% Plots on my computer
-if 1
+if 0
     m=100;
     
     %confirmation 

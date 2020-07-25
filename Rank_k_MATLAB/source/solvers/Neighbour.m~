@@ -1,0 +1,35 @@
+function [X,Y]= Neighbour(W_omega,opts)
+k=opts.k;
+mask=1.*(W_omega==0);
+A=(W_omega+1)/2;
+
+X=nearest_group(W_omega);
+
+observed_hamming=0;
+[m,n]=size(A);
+exact_rho=sum(sum(mask))/m/n;
+[m,n]=size(A);
+if observed_hamming
+    A_copy=A;
+    A_copy(mask)=Nan;
+    H=squareform(pdist(A_copy,@nanhamdist));
+else
+    H=squareform(pdist(A,'hamming'));
+end
+X=zeros(m,k);
+Y=zeros(n,k);
+hvals=ones(m,1);
+    for j=1:k
+        Hsub=H(find(hvals),:);
+        [val,idx]=sort(Hsub(j,:));
+        idx=idx(1:m/k);
+        C=idx;
+        for i=1:length(C)
+            iidx=C(i);
+            X(iidx,j)=1;
+            hvals(iidx)=0;
+        end
+        mu=(1/(exact_rho*length(idx))*sum(A(idx,:))>1/2)*1;
+        Y(:,j)=mu;
+    end
+end
