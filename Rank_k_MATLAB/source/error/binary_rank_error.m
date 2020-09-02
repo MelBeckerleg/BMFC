@@ -64,7 +64,7 @@ if strcmp(error_type,'cluster')
         disp('no ground truth cluster provided')
         X=NaN;Y=NaN;
     else
-           disp('yes')
+           
         if strcmp(val_idx,'row')
             err=cluster_strength(X,X_true);
         end 
